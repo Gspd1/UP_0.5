@@ -4,20 +4,19 @@ from tkVideoPlayer import TkinterVideo
 
 
 def main():
-    # Создаем главное окно
     root = tk.Tk()
     root.title("Мой Видеоплеер")
     root.geometry("800x600")
 
-    # Создаем видеоплеер
+
     video_player = TkinterVideo(root, scaled=True)
     video_player.pack(expand=True, fill="both", padx=10, pady=10)
 
-    # Переменные для управления
+
     current_video = ""
     is_playing = False
 
-    # Функции плеера
+
     def play_pause():
         nonlocal is_playing
         if current_video:
@@ -66,7 +65,7 @@ def main():
 5. 🔈 Громкость - регулировка звука"""
         messagebox.showinfo("Помощь", help_text)
 
-    # Создаем меню
+
     menubar = tk.Menu(root)
 
     file_menu = tk.Menu(menubar, tearoff=0)
@@ -81,23 +80,23 @@ def main():
 
     root.config(menu=menubar)
 
-    # Панель управления
+
     control_frame = tk.Frame(root)
     control_frame.pack(fill="x", padx=10, pady=5)
 
-    # Кнопки управления
+
     play_btn = tk.Button(control_frame, text="▶️ Играть", command=play_pause)
     play_btn.pack(side="left", padx=5)
 
     stop_btn = tk.Button(control_frame, text="⏹️ Стоп", command=stop_video)
     stop_btn.pack(side="left", padx=5)
 
-    # Ползунок прогресса
+
     progress_slider = tk.Scale(root, from_=0, to=100, orient="horizontal")
     progress_slider.pack(fill="x", padx=10, pady=5)
     progress_slider.config(command=seek_video)
 
-    # Запускаем обновление прогресса
+    
     update_progress()
 
     root.mainloop()
