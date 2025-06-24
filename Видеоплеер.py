@@ -7,52 +7,52 @@ import vlc
 import os
 
 vlc_path = r"C:\Program Files\VideoLAN\VLC"
-os.add_dll_directory(vlc_path)
+os.add_dll_directory(vlc_path) #добавляет путь к каталогу поиска DLL для текущего процесса
+#Это позволяет процессу искать файлы DLL в указанном каталоге при загрузке библиотек
 
 
+def exit(): #выход из приложения
+    player.stop() #остановка воспроизведения
+    root.quit() #завершение программы
 
-def exit():
-    player.stop()
-    root.quit()
-
-def open_help():
+def open_help(): #открытие справки использования
     help_text = "Инструкция по использованию приложения:\n\n"
     help_text += "1. Нажмите 'Выбрать видео', чтобы загрузить видеофайл.\n"
     help_text += "2. Используйте кнопку '⏸' для паузы/воспроизведения.\n"
     help_text += "3. Используйте кнопку 'Плейлист' для управления списком воспроизведения.\n"
     help_text += "4. Для выхода используйте кнопку 'Выход'.\n"
-    messagebox.showinfo("Помощь", help_text)
+    messagebox.showinfo("Помощь", help_text) #вывод окна с данными написанными слева и в функции сверху
 
-def select_video():
-    file_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4 *.avi *.mov *.mkv")])
+def select_video(): #выбор видео при нажатии кнопки выбрать файл меню и его воспроизведение
+    file_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4 *.avi *.mov *.mkv")]) #открывает диалоговое окно для выбора файла и возвращает путь к выбранному файлу в виде строки
     if file_path:
         load_and_play(file_path)
 
-def pause(): #pause
+def pause(): #пауза/воспроизведение видео
     if player.is_playing():
-        player.pause()
+        player.pause() #остановка воспроизведения
         pause_btn.config(text="▶️")
     else:
-        player.play()
+        player.play() #дальнейшее воспроизведение
         pause_btn.config(text="⏸️")
 
-def update_playlist():
+def update_playlist(): #обновление плейлиста при добавлении в него новых файлов
     if 'playlist_listbox' in globals():
-        playlist_listbox.delete(0, tk.END)
+        playlist_listbox.delete(0, tk.END) # удаление всех элементов из виджета listbox
         for i in playlist:
-            playlist_listbox.insert(tk.END, i.split('/')[-1])
+            playlist_listbox.insert(tk.END, i.split('/')[-1]) #добавление элементов в конец списка
 
-def load_and_play(file_path):
+def load_and_play(file_path): #загрузка одиночного видео
     player.stop()
-    media = vlc_instance.media_new(file_path)
-    player.set_media(media)
+    media = vlc_instance.media_new(file_path) #создание нового объекта медиа на основе указанного пути к файлу
+    player.set_media(media) #установка медиаобъекта в медиаплеер
     set_player_ww()
     player.play()
     pause_btn.config(text="⏸️")
-    time.sleep(0.1)
+    time.sleep(0.1) #делает паузу между действиями в программе, останавливает выполнение потока на 100мс
 
 def set_player_ww():
-    player.set_hwnd(video_frame.winfo_id())
+    player.set_hwnd(video_frame.winfo_id()) #позволяет привязать объект player к окну video_frame
 
 
 def toggle_playlist_window(): #открывает/закрывает окно плейлиста
@@ -68,25 +68,27 @@ def toggle_playlist_window(): #открывает/закрывает окно п
 
 def open_playlist_ww(): #открытие плейлиста
     def del_vids(): #удаление выбранных видео в плейлисте
-        selected = playlist_listbox.curselection()
-        for i in reversed(selected):
-            del playlist[i]
+        selected = playlist_listbox.curselection() #возвращает кортеж индексов выбранных элементов
+        for i in reversed(selected): #перебирает элементы последовательности в обратном порядке.
+            # Последовательность в данном случае это индексы видео
+            del playlist[i] # удаления элемента из списка по индексу
         update_playlist()
 
     def add_vids(): #добавление видео в плейлист
         files = filedialog.askopenfilenames(filetypes=[("Video files", "*.mp4 *.avi *.mov *.mkv")])
         if files:
-            playlist.extend(files)
+            playlist.extend(files) #добавление новых элементов из окна проводника в конец уже имеющегося плейлиста
             update_playlist()
 
     def save_vids():  # сохранение плейлиста как текстового файла
         filepath = filedialog.asksaveasfilename(defaultextension='.txt', filetypes=[
-            ("Text files", "*.txt")])  # deftxtnn это автоматическое задание расширения
-        if filepath:
+            ("Text files", "*.txt")])  # defaultextension это автоматическое задание расширения файлов для сохранения
+        if filepath: #если вообще что нибудь выбрано
             try:
                 with open(filepath, 'w',
-                          encoding='utf-8') as output:  # контекст.менеджер; 1-путь к файлу, 2-режим открытия, 3-кодировка; c сохранением в пер-ю filepath
-                    for i in playlist:
+                          encoding='utf-8') as output:  # контекст.менеджер; 1-путь к файлу, 2-режим открытия(w значит для записи), 3-кодировка; c сохранением в пер-ю filepath
+                    #открывает файл и возвращает объект, представляющий его
+                    for i in playlist: #для видео в плейлисте
                         print(i, file=output)  # запись в файл
                 messagebox.showinfo("Сохранено", 'Ваш плейлист сохранен')
             except:
@@ -96,11 +98,12 @@ def open_playlist_ww(): #открытие плейлиста
         file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
         if file_path:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, "r", encoding="utf-8") as f: #r это read
                     loaded_paths = [line.strip() for line in f.readlines() if line.strip()]
-                    playlist.clear()
-                    playlist.extend(loaded_paths)
-                    update_playlist()
+                    #line.strip() для удаления символов переноса (\n)
+                    playlist.clear() #удаляет уже имеющиеся видео в плейлисте
+                    playlist.extend(loaded_paths) #добавление элементы из txt файлав в конец плейлиста, т.е. друг за другом
+                    update_playlist() #обновление плейлиста при добавлении в него новых файлов
                 messagebox.showinfo("Успешно", "Плейлист загружен.")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось загрузить плейлист:\n{e}")
@@ -108,7 +111,7 @@ def open_playlist_ww(): #открытие плейлиста
     def play_some(index): #для кнопки 'воспроизвести' в окне плейлиста
         if 0 <= index and index < len(playlist):
             file_path = playlist[index]
-            load_and_play(file_path)
+            load_and_play(file_path) #загрузка и проигрывание видео
 
     def play_selected(): #если видео выбрано, проигрывание начинается с выбранного видео
         if not playlist:
@@ -128,17 +131,17 @@ def open_playlist_ww(): #открытие плейлиста
 
 
         def check_video_end(): #проверка окончания видео
-            nonlocal start_index
-            if player.get_length() > 0:
-                if player.get_state() == vlc.State.Ended:
-                    if playlist_auto:
+            nonlocal start_index #nonlocal значит не является локальной, но она и не является глобальной в общем смысле
+            if player.get_length() > 0: # продолжительность текущего медиафайла в мс
+                if player.get_state() == vlc.State.Ended: #а это так, возвращает текущее состояние проигрывателя
+                    if playlist_auto: #глобальная переменная
                         next_index = (start_index + 1) % len(playlist)
                         start_index = next_index
                         play_next(next_index)
-            root.after(1000, check_video_end)
+            root.after(1000, check_video_end) #запуск функции через определённый промежуток времени (чтобы все успело обновиться,закрыться, открыться (в общем), чтобы не возникало ошибок)
 
         play_next(start_index)
-        root.after(1000, check_video_end)
+        root.after(1000, check_video_end) #запуск функции через определённый промежуток времени
 
 
     global playlist_ww
@@ -147,7 +150,7 @@ def open_playlist_ww(): #открытие плейлиста
     playlist_ww.geometry("400x300")
 
     global playlist_listbox
-    playlist_listbox = tk.Listbox(master=playlist_ww,bg='darkolivegreen')
+    playlist_listbox = tk.Listbox(master=playlist_ww,bg='darkolivegreen') #листбокс для видео
     playlist_listbox.pack(fill="both", expand=True, padx=10, pady=10)
 
     btn_frame = tk.Frame(master=playlist_ww, bg='darkolivegreen')
@@ -170,7 +173,7 @@ def open_playlist_ww(): #открытие плейлиста
 
     update_playlist()
 
-def format_time(ms):
+def format_time(ms): #форматирование времени из мс в с (или с и ч если видео длинное)
     if ms is None or ms < 0:
         return "00:00"
     else:
@@ -185,11 +188,11 @@ def format_time(ms):
             secs = int((seconds - 3600 * hours) % 60)
             return f'{hours:02d}{mins:02d}:{secs:02d}'
 
-def upd_slider():
+def upd_slider(): #обновление слайдера времени видео
     if player.get_length() > 0:
         length = player.get_length()
-        current = player.get_time()
-        slider.config(to=100)
+        current = player.get_time() #текущее время воспроизведения
+        slider.config(to=100) #100 это проценты отображения длительности, т.е. 100 проц длительности
         slider.set(current * 100 / length)
         curr_time.config(text=format_time(current))
         dur_time.config(text=format_time(length))
@@ -197,33 +200,34 @@ def upd_slider():
         curr_time.config(text="00:00")
         dur_time.config(text="00:00")
 
-    root.after(500, upd_slider)
+    root.after(500, upd_slider) #запуск функции через определённый промежуток времени
 
 
-def slider_change(event):
+def slider_change(event): #изменение положения ползунка слайдера при дергании его мышкой
     if player.get_length()>0:
         current_time = int(slider.get()*player.get_length()/100)
         player.set_time(current_time)
 
-def play_random():
+def play_random(): #рандомный порядок воспроизведения
     global shuffled_iterator
-    if not playlist:
+    if not playlist: #если плейлист не создан
         messagebox.showinfo("Ошибка","Плейлист пуст")
         return
 
-    shuffled = playlist.copy()
+    shuffled = playlist.copy() # создаёт новый список с теми же элементами, что и оригинальный, но сохраняет свою идентичность в памяти
+    #изменения в новом списке не влияют на оригинальный, и наоборот (если пользователь захочет отключить рандомный порядок)
     random.shuffle(shuffled)
-    shuffled_iterator = itertools.cycle(shuffled)
+    shuffled_iterator = itertools.cycle(shuffled) #cycle это бесконечный итератор
 
-    def play_next_random():
+    def play_next_random(): #запуск след видео в рандомном порядке
         path = next(shuffled_iterator)
         load_and_play(path)
 
-    def check_video_end():
+    def check_video_end(): #проверка окончания видео для плейлиста
         if player.get_length() > 0:
-            if player.get_state() == vlc.State.Ended:
-                play_next_random()
-        root.after(1000, check_video_end)
+            if player.get_state() == vlc.State.Ended: #если воспроизводимое видео окончилось
+                play_next_random() #играем следующее
+        root.after(1000, check_video_end) #запуск функции через определённый промежуток времени
 
     play_next_random()
     root.after(1000, check_video_end)
@@ -232,7 +236,7 @@ def play_random():
 
 def repeat():
     global repeat_current
-    repeat_current = not repeat_current
+    repeat_current = not repeat_current #смена состояния репита
     repeat_btn.config(relief=tk.SUNKEN if repeat_current else tk.RAISED)
 
 def playlist_mod():
@@ -244,26 +248,27 @@ def playlist_mod():
         messagebox.showinfo('Ошибка', 'Плейлист не создан')
 
 
-def setup_vlc_events():
-    event_manager = player.event_manager()
+def setup_vlc_events(): #обрабатывает ивент завершения видео, вызывает on_end_reached
+    event_manager = player.event_manager() #для обнаружения окончания воспроизведения медиафайла или изменения состояния медиа
     event_manager.event_attach(vlc.EventType.MediaPlayerEndReached, on_end_reached)
+    #позволяет зарегистрировать уведомление о событии и связать его с функцией обратного вызова (обработчиком события)
 
-def on_end_reached(event):
+def on_end_reached(event): #проверка на окончание для рестарта одного видео
     if repeat_current:
         root.after(100, restart_video)
 
 def restart_video():
     try:
         player.stop()
-        player.set_time(0)
+        player.set_time(0) #установка значения времени
         player.play()
-    except Exception as e:
+    except Exception as e: #обработка ошибок на всякий случай
         print(f"Ошибка при перезапуске видео: {e}")
         messagebox.showerror("Ошибка", f"Не удалось перезапустить видео: {e}")
 
-def volume_change(val):
+def volume_change(val): #изменение громкости звука
     volume = int(float(val))
-    player.audio_set_volume(volume)
+    player.audio_set_volume(volume) #настройка громкости, число от 0 до 100
 
 
 root = tk.Tk()
@@ -273,17 +278,18 @@ root.geometry("1000x600+170-100")
 root.configure(bg='darkolivegreen')
 root.minsize(800,600)
 
+#глобальные переменные
 playlist = []
 playlist_auto = True #сигнализатор нажатия кнопки
-repeat_current = False
+repeat_current = False #сигнализатор повтора текущего трека
 playlist_ww = None  # Для отслеживания окна плейлиста
 
-video_frame = tk.Frame(root, bg="black")
+video_frame = tk.Frame(root, bg="black") #фрейм для видео
 video_frame.pack(expand=True, fill="both")
 
-vlc_instance = vlc.Instance()
-player = vlc_instance.media_player_new()
-setup_vlc_events()
+vlc_instance = vlc.Instance() #создаёт экземпляр (объект) библиотеки VLC
+player = vlc_instance.media_player_new() #создаёт новый объект видеоплеера, связанный с экземпляром библиотеки VLC
+setup_vlc_events() #присоединение обработчиков событий к объекту EventManager медиаплеера
 player.audio_set_volume(80)
 
 # Ползунок и время
@@ -295,7 +301,7 @@ curr_time.pack(side=tk.LEFT, padx=5)
 
 slider = tk.Scale(slider_frame, from_=0, to=100, orient="horizontal", length=600, sliderlength=20, showvalue=False,bg='darkolivegreen')
 slider.pack(side=tk.LEFT, padx=5)
-slider.bind("<ButtonRelease-1>", slider_change)
+slider.bind("<ButtonRelease-1>", slider_change) #buttonrelease -событие, которое срабатывает, когда кнопка мыши отпущена (левая кнопка)
 
 dur_time = tk.Label(slider_frame, text="00:00", width=5, font=("Arial", 10),bg='darkolivegreen')
 dur_time.pack(side=tk.LEFT, padx=5)
@@ -339,4 +345,4 @@ root.config(menu=menubar)
 
 upd_slider()
 
-root.mainloop()
+root.mainloop() #запускает цикл обработки событий окна для взаимодействия с пользователем
